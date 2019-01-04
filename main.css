@@ -9,6 +9,9 @@ h1 {
   margin-top : 50px;
   position : relative;
   padding : 15px;
+  -webkit-touch-callout : none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   background : #bbada0;
   border-radius : 6px;
   width : 500px;
@@ -50,8 +53,12 @@ h1 {
   border-radius : 3px;
   text-align : center;
   line-height : 116.25px;
-  font-size : 60px;
+  font-size : 55px;
   font-weight : bold;
+  -webkit-transition: 200ms ease;
+  -moz-transition: 200ms ease;
+  -webkit-transition-property: top, left;
+  -moz-transition-property: top, left;
 }
 .tile-container {
   position : absolute;

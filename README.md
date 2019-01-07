@@ -1,7 +1,7 @@
 # 2048
 
 ### 현재 진행 상황
-[<img src="images/loading.png" height="600" width="600" title="Demo 1">](https://github.com/SeoHyeonMyeong/2048)
+[<img src="images/loading.png" height="600" title="Loading">](https://github.com/SeoHyeonMyeong/2048)
 
 ***
 &nbsp;

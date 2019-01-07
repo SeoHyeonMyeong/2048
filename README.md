@@ -1,7 +1,7 @@
 # 2048
 
 ### 현재 진행 상황
-[<img src="로딩.png" height="600" width="600" title="Demo 1">](http://url-to-page)
+[<img src="로딩.png" height="600" width="600" title="Demo 1">](https://github.com/SeoHyeonMyeong/2048)
 
 
 ### 로딩 시 2개의 셀 랜덤위치에 삽입 //19.1.7

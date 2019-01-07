@@ -15,7 +15,7 @@ GameManager.prototype.addStartCell = function() {	//	초기 셀 2개 삽입	(실
 	for(var i=0;i<this.startCells;i++){
   	var value = Math.random() < 0.8 ? 2 : 4;
 		this.grid.addRandomCell(value);	// 랜덤 위치에 초기 셀 삽입
-    this.actuator.actuate();	// 제어기 작동으로 화면에 셀 실제 표시
+    this.actuator.actuate(this.grid);	// 제어기 작동으로 화면에 셀 실제 표시
 	}
 }
 
@@ -51,7 +51,7 @@ Grid.prototype.getPositionsAvailable = function() {	// 비어있는 셀 포지�
   for(var x=0;x<this.size;x++){		// 모든 셀 탐색
   	for(var y=0;y<this.size;y++){		// 모든 셀 탐색
     	var position = {x:x,y:y};
-      if(cellAvailable(position)){	// 포지션의 셀이 사용 가능 할 경우
+      if(this.cellAvailable(position)){	// 포지션의 셀이 사용 가능 할 경우
       	cellPositions.push(position);	// 그 포지션을 배열에 푸쉬
       }
     }
@@ -61,7 +61,7 @@ Grid.prototype.getPositionsAvailable = function() {	// 비어있는 셀 포지�
 
 
 Grid.prototype.insertCell = function(cell) {	// 셀 삽입
-	if(cellAvailable(cell.position)){		//셀 사용 가능시
+	if(this.cellAvailable(cell.position)){		//셀 사용 가능시
   	this.cells[cell.x][cell.y] = cell;	//셀 삽입
 	}
 }
@@ -88,11 +88,11 @@ function HTMLActuator() {	// 제어기 (실행2)
 }
 
 HTMLActuator.prototype.actuate = function(grid) {	// 제어기 작동
-	this.clearContainer();	//타일 컨테이너 클리어
+	var self = this; this.clearContainer();	//타일 컨테이너 클리어
   grid.cells.forEach(function (column){	// 계산한 셀을 실제 셀에 삽입 
   	column.forEach(function(cell){
     	if(cell) {
-      	this.addCell(cell);
+      	self.addCell(cell);
       }
     });
   });
@@ -109,7 +109,7 @@ HTMLActuator.prototype.addCell = function(cell){
   var x = cell.x+1;	
   var y = cell.y+1;
   var position = "tile-position-"+x+"-"+y;	// 타일 포지션 정의
-  element.classList.add("tile","tile-"+tile.value,position);	// 클래스 첨가
+  element.classList.add("tile","tile-"+cell.value,position);	// 클래스 첨가
   element.textContent = cell.value;	// 값 추가
   this.tileContainer.appendChild(element);	//타일 컨테이너에 삽입
 }

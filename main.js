@@ -9,7 +9,27 @@ function GameManager(size,actuator) {	// 게임 매니저	(크기, 제어기) �
 
 GameManager.prototype.setup = function() {	// 게임 매니저 셋업 (실행5)
 	this.addStartCell();
+	this.addKeyDownEvent();
 }
+
+GameManager.prototype.addKeyDownEvent = function() {	// 키 다운 이벤트 삽입
+	var self = this;
+	document.addEventListener("keydown",function(e){	
+		if (e.key==="ArrowLeft") {	// 왼쪽 화살표 누를시
+		self.grid.goRight();
+		self.addStartCell();
+		self.actuator.actuate(self.grid);
+		};
+
+		if (e.key==="ArrowRight") console.log("오른쪽 화살표");
+		if (e.key==="ArrowUp") console.log("위 화살표");
+		if (e.key==="ArrowDown") console.log("아래 화살표");
+
+	})
+
+	
+}
+
 
 GameManager.prototype.addStartCell = function() {	//	초기 셀 2개 삽입	(실행5)
 	for(var i=0;i<this.startCells;i++){
@@ -29,6 +49,26 @@ function Grid(size) {	// 그리드 (크기) (실행3)
   this.build();		// (실행4)
 }
 
+Grid.prototype.goRight = function() {
+	var self = this;
+	for(var y = 0; y<self.size ; y++) {
+		for(var x = self.size-1; x>=0 ; x--) {
+			for(var j = 0; j<3;j++){
+				if(self.cells[y][x]===null) {
+					for(var i = x;i>0;i--) {
+						if(self.cells[y][i-1]!==null){
+							self.cells[y][i-1].x++;
+							self.cells[y][i-1].position.x++;
+						}
+						self.cells[y][i] = self.cells[y][i-1];
+						self.cells[y][i-1] = null;
+					}	
+				}
+			}
+		}
+	}
+}
+
 Grid.prototype.build = function() {		// 크기*크기의 그리드에 셀을 "null"로 삽입 (실행4)
 	for(var x=0;x<this.size;x++){
   	this.cells[x] = [];
@@ -40,11 +80,23 @@ Grid.prototype.build = function() {		// 크기*크기의 그리드에 셀을 "nu
 
 Grid.prototype.addRandomCell = function(value) {	// 랜덤 셀 삽입(값)
 	var positions = this.getPositionsAvailable();	// 비어있는 셀 포지션 배열 받기
-  var random = Math.floor(Math.random() * positions.length);	// 랜덤으로 범위내 숫자 하나 선택
-  var randomPosition = positions[random];	// 랜덤 숫자의 포지션 선택
-  this.insertCell(new Cell(randomPosition,value))	// 셀 삽입
-  
+	if (!this.isFull()){ 
+		var random = Math.floor(Math.random() * positions.length);	// 랜덤으로 범위내 숫자 하나 선택
+		var randomPosition = positions[random];	// 랜덤 숫자의 포지션 선택
+		this.insertCell(new Cell(randomPosition,value))	// 셀 삽입
+	}
 }
+
+Grid.prototype.isFull = function() {
+	var positions = this.getPositionsAvailable();	// 비어있는 셀 포지션 배열 받기
+	if (positions.length===0) {
+		alert("게임 오버");
+		return true;
+	}
+	else return false;
+	
+}
+
 
 Grid.prototype.getPositionsAvailable = function() {	// 비어있는 셀 포지션 배열 받기
 	var cellPositions = [];
@@ -130,3 +182,4 @@ document.addEventListener("DOMContentLoaded",function() {	// 로딩되면 제어
 	var actuator = new HTMLActuator();
   var manager = new GameManager(4,actuator);
 })
+

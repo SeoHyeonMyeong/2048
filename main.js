@@ -16,14 +16,30 @@ GameManager.prototype.addKeyDownEvent = function() {	// 키 다운 이벤트 삽
 	var self = this;
 	document.addEventListener("keydown",function(e){	
 		if (e.key==="ArrowLeft") {	// 왼쪽 화살표 누를시
-		self.grid.goRight();
-		self.addStartCell();
-		self.actuator.actuate(self.grid);
+			self.grid.mergeLeft();
+			self.grid.goLeft();
+			self.addStartCell();
+			self.actuator.actuate(self.grid);
 		};
 
-		if (e.key==="ArrowRight") console.log("오른쪽 화살표");
-		if (e.key==="ArrowUp") console.log("위 화살표");
-		if (e.key==="ArrowDown") console.log("아래 화살표");
+		if (e.key==="ArrowRight") {	// 오른쪽 화살표 누를시
+			self.grid.mergeRight();
+			self.grid.goRight();
+			self.addStartCell();
+			self.actuator.actuate(self.grid);
+		}
+		if (e.key==="ArrowUp") {	// 위쪽 화살표 누를시
+			self.grid.mergeUp();
+			self.grid.goUp();
+			self.addStartCell();
+			self.actuator.actuate(self.grid);
+		}
+		if (e.key==="ArrowDown") {	// 아래쪽 화살표 누를시
+			self.grid.mergeDown();
+			self.grid.goDown();
+			self.addStartCell();
+			self.actuator.actuate(self.grid);
+		}
 
 	})
 
@@ -49,25 +65,144 @@ function Grid(size) {	// 그리드 (크기) (실행3)
   this.build();		// (실행4)
 }
 
-Grid.prototype.goRight = function() {
+Grid.prototype.mergeLeft = function() {
 	var self = this;
-	for(var y = 0; y<self.size ; y++) {
-		for(var x = self.size-1; x>=0 ; x--) {
-			for(var j = 0; j<3;j++){
-				if(self.cells[y][x]===null) {
-					for(var i = x;i>0;i--) {
-						if(self.cells[y][i-1]!==null){
-							self.cells[y][i-1].x++;
-							self.cells[y][i-1].position.x++;
+	var cellExist = [];
+	var i = 0;
+	self.cells.forEach(function(row){	// 각 행마다
+		cellExist[i] = [];	
+		row.forEach(function(cell){		// 각 셀마다
+			if(cell){
+				cellExist[i].push(cell);	// 존재하는 셀 배열에 넣기
+			}
+		});
+		i++;
+	});
+	cellExist.forEach(function(row){	// 각 행에 존재하는 셀
+		for(var j=0;j<row.length-1;j++){	// 0부터 존재하는 셀 개수 -1 만큼 실행
+			if(row[j].value===row[j+1].value){	// 이웃하는 두 셀의 값이 같다면
+				self.cells[row[j].x][row[j].y].value *= 2;	// 그 셀의 값 *2
+				self.cells[row[j+1].x][row[j+1].y] = null;	// 그 이웃 셀 null 삽입
+				j = 10;	// 조건문 탈출
+			}
+		}
+	});
+}
+
+Grid.prototype.mergeRight = function() {
+	
+}
+
+Grid.prototype.mergeUp = function() {
+	var self = this;
+	var cellExist = [];
+	var i = 0;	// i = 열
+	for(var y=0; y<self.size; y++){	// 각 열마다
+		cellExist[i] = [];
+		for(var x=0; x<self.size; x++){	// 해당 열의 각 셀마다
+			var cell = self.cells[x][y];
+			if(cell){
+				cellExist[i].push(cell);	// 존재하는 셀 배열에 넣기
+			}
+		}
+		i++;
+	}
+	cellExist.forEach(function(column){	// 각 열에 존재하는 셀
+		for(var j=0;j<column.length-1;j++){	// 0부터 존재하는 셀 개수 -1 만큼 실행
+			if(column[j].value===column[j+1].value){	// 이웃하는 두 셀의 값이 같다면
+				self.cells[column[j].x][column[j].y].value *= 2;	// 그 셀의 값 *2
+				self.cells[column[j+1].x][column[j+1].y] = null;	// 그 이웃 셀 null 삽입
+				j = 10;	// 조건문 탈출
+			}
+		}
+	});
+}
+
+Grid.prototype.mergeDown = function() {
+
+}
+
+
+Grid.prototype.goRight = function() {	// 오른쪽으로 보내기
+	var self = this;
+	for(var x = 0; x<self.size ; x++) {	// x가 0부터 3까지
+		for(var y = self.size-1; y>=0 ; y--) {	// y 는 3부터 0까지
+			for(var j = 0; j<3;j++){	// 3회 반복
+				if(self.cells[x][y]===null) {	// 값이 null 일 경우
+					for(var i = y; i>0; i--) {	// i가 y부터 1까지
+						if(self.cells[x][i-1]!==null){	// 전 셀이 null이 아닐경우
+							self.cells[x][i-1].y++;		// 셀 y 값 +1;
+							self.cells[x][i-1].position.y++;
 						}
-						self.cells[y][i] = self.cells[y][i-1];
-						self.cells[y][i-1] = null;
+						self.cells[x][i] = self.cells[x][i-1];	// 이전 셀을 현재 셀에 삽입
+						self.cells[x][i-1] = null;	// 이전 셀 값은 null
 					}	
 				}
 			}
 		}
 	}
 }
+
+Grid.prototype.goLeft = function() {	// 왼쪽으로 보내기
+	var self = this;
+	for(var x = 0; x<self.size ; x++) {	// x가 0부터 3까지
+		for(var y = 0; y<self.size ; y++) {	// y 는 0부터 3까지
+			for(var j = 0; j<3;j++){	// 3회 반복
+				if(self.cells[x][y]===null) {	// 값이 null 일 경우
+					for(var i = y; i<3; i++) {	// i가 y부터 2까지
+						if(self.cells[x][i+1]!==null){	// 이후 셀이 null이 아닐경우
+							self.cells[x][i+1].y--;		// 셀 y 값 -1;
+							self.cells[x][i+1].position.y--;
+						}
+						self.cells[x][i] = self.cells[x][i+1];	// 이후 셀을 현재 셀에 삽입
+						self.cells[x][i+1] = null;	// 이후 셀 값은 null
+					}	
+				}
+			}
+		}
+	}
+}
+
+Grid.prototype.goUp = function() {	// 위쪽으로 보내기
+	var self = this;
+	for(var y = 0; y<self.size ; y++) {	// y가 0부터 3까지
+		for(var x = 0; y<self.size ; y++) {	// x 는 0부터 3까지
+			for(var j = 0; j<3;j++){	// 3회 반복
+				if(self.cells[x][y]===null) {	// 값이 null 일 경우
+					for(var i = x; i<3; i++) {	// i가 x부터 2까지
+						if(self.cells[i+1][y]!==null){	// 이후 셀이 null이 아닐경우
+							self.cells[i+1][y].x--;		// 셀 x 값 -1;
+							self.cells[i+1][y].position.x--;
+						}
+						self.cells[i][y] = self.cells[i+1][y];	// 이후 셀을 현재 셀에 삽입
+						self.cells[i+1][y] = null;	// 이후 셀 값은 null
+					}	
+				}
+			}
+		}
+	}
+}
+
+Grid.prototype.goDown = function() {	// 아래쪽으로 보내기
+	var self = this;
+	for(var y = 0; y<self.size ; y++) {	// y가 0부터 3까지
+		for(var x = self.size-1 ; x>=0 ; x--) {	// x 는 3부터 0까지
+			for(var j = 0; j<3;j++){	// 3회 반복
+				if(self.cells[x][y]===null) {	// 값이 null 일 경우
+					for(var i = x; i > 0; i--) {	// i가 x부터 1까지
+						if(self.cells[i-1][y]!==null){	// 이전 셀이 null이 아닐경우
+							self.cells[i-1][y].x++;		// 셀 x 값 +1;
+							self.cells[i-1][y].position.x++;
+						}
+						self.cells[i][y] = self.cells[i-1][y];	// 이전 셀을 현재 셀에 삽입
+						self.cells[i-1][y] = null;	// 이전 셀 값은 null
+					}	
+				}
+			}
+		}
+	}
+}
+
 
 Grid.prototype.build = function() {		// 크기*크기의 그리드에 셀을 "null"로 삽입 (실행4)
 	for(var x=0;x<this.size;x++){
@@ -182,4 +317,3 @@ document.addEventListener("DOMContentLoaded",function() {	// 로딩되면 제어
 	var actuator = new HTMLActuator();
   var manager = new GameManager(4,actuator);
 })
-
